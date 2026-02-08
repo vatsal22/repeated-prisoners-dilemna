@@ -159,7 +159,7 @@
 	isRunning={getIsRunning()}
 />
 
-{#if getSelectedStrategyForResults() && getSelectedStrategyMatches().length > 0 && getSelectedStrategyForResults() !== getUserStrategyName()}
+{#if getSelectedStrategyForResults() && getSelectedStrategyMatches().length > 0}
 	<section class="panel" id="strategy-results">
 		<div class="results-header">
 			<h2>Strategy Results</h2>

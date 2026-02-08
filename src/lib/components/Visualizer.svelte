@@ -13,6 +13,12 @@
 	let speed = $state(1);
 	let intervalId: ReturnType<typeof setInterval> | null = null;
 
+	// Reset visualizer when match changes
+	$effect(() => {
+		match; // Track match changes
+		reset();
+	});
+
 	const totalRounds = $derived(match.rounds.length);
 	const currentData = $derived(currentRound > 0 ? match.rounds[currentRound - 1] : null);
 	const recentRounds = $derived(
