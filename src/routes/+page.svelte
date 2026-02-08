@@ -1,40 +1,177 @@
 <script lang="ts">
-	let cooperateCount = $state(0);
-	let defectCount = $state(0);
+	import { onMount } from 'svelte';
+	import Editor from '$lib/components/Editor.svelte';
+	import Leaderboard from '$lib/components/Leaderboard.svelte';
+	import TournamentRunner from '$lib/components/TournamentRunner.svelte';
+	import Results from '$lib/components/Results.svelte';
+	import Visualizer from '$lib/components/Visualizer.svelte';
+	import { getBuiltinStrategies, compileStrategy, validateStrategy } from '$lib/strategies.js';
+	import { runTournament } from '$lib/engine.js';
+	import { loadStrategies, saveStrategies } from '$lib/persistence.js';
+	import { encodeStrategy, decodeStrategy } from '$lib/sharing.js';
+	import type { MatchResult, ScoringMode } from '$lib/types.js';
+	import {
+		getStrategies,
+		getMatches,
+		getScoringMode,
+		setScoringMode,
+		getIsRunning,
+		setIsRunning,
+		getProgress,
+		setProgress,
+		getUserStrategyName,
+		setUserStrategyName,
+		getSelectedMatch,
+		setSelectedMatch,
+		getLeaderboard,
+		getUserMatches,
+		addStrategy,
+		setStrategies,
+		setMatches
+	} from '$lib/state.svelte.js';
 
-	function cooperate() {
-		cooperateCount++;
+	let sharedName = $state('');
+	let sharedCode = $state('');
+	let showCopied = $state(false);
+
+	onMount(() => {
+		// Load builtins
+		const builtins = getBuiltinStrategies();
+		for (const b of builtins) addStrategy(b);
+
+		// Load saved user strategies
+		const saved = loadStrategies();
+		for (const s of saved) {
+			addStrategy(s);
+			setUserStrategyName(s.name);
+		}
+
+		// Check URL for shared strategy
+		const decoded = decodeStrategy(window.location.href);
+		if (decoded) {
+			sharedName = decoded.name;
+			sharedCode = decoded.code;
+			// Clean the URL
+			const url = new URL(window.location.href);
+			url.searchParams.delete('strategy');
+			window.history.replaceState({}, '', url.toString());
+		}
+	});
+
+	async function handleSubmit(name: string, code: string) {
+		const validation = validateStrategy(code);
+		if (!validation.valid) return;
+
+		const fn = compileStrategy(code);
+		const userStrategy = { name, code, fn, isBuiltin: false };
+
+		// Remove old user strategy if exists
+		const oldName = getUserStrategyName();
+		if (oldName) {
+			const strategies = getStrategies().filter((s) => s.name !== oldName);
+			setStrategies(strategies);
+		}
+
+		addStrategy(userStrategy);
+		setUserStrategyName(name);
+		saveStrategies(getStrategies());
+
+		// Run tournament
+		setIsRunning(true);
+		setProgress(0, 0);
+
+		const allStrategies = getStrategies();
+		const results = await runTournament(allStrategies, (completed, total) => {
+			setProgress(completed, total);
+		});
+
+		setMatches(results);
+		setIsRunning(false);
 	}
 
-	function defect() {
-		defectCount++;
+	function handleScoringChange(mode: ScoringMode) {
+		setScoringMode(mode);
+	}
+
+	function handleWatch(strategyName: string) {
+		const matches = getMatches();
+		const match = matches.find(
+			(m) => m.strategy1 === strategyName || m.strategy2 === strategyName
+		);
+		if (match) setSelectedMatch(match);
+	}
+
+	function handleWatchMatch(match: MatchResult) {
+		setSelectedMatch(match);
+	}
+
+	function handleCloseVisualizer() {
+		setSelectedMatch(null);
+	}
+
+	function handleShare() {
+		const name = getUserStrategyName();
+		if (!name) return;
+		const strategy = getStrategies().find((s) => s.name === name);
+		if (!strategy) return;
+		const url = encodeStrategy(strategy.name, strategy.code);
+		navigator.clipboard.writeText(url).then(() => {
+			showCopied = true;
+			setTimeout(() => (showCopied = false), 2000);
+		});
 	}
 </script>
 
 <div class="grid">
 	<section class="panel editor-panel">
 		<h2>Strategy Editor</h2>
-		<p class="placeholder">Code editor coming soon — write your strategy in JavaScript</p>
+		<Editor
+			onSubmit={handleSubmit}
+			disabled={getIsRunning()}
+			initialName={sharedName}
+			initialCode={sharedCode}
+		/>
+		{#if getUserStrategyName()}
+			<div class="share-row">
+				<button class="share-btn" onclick={handleShare}>
+					{showCopied ? 'Copied!' : 'Share Strategy'}
+				</button>
+			</div>
+		{/if}
 	</section>
 
 	<section class="panel leaderboard-panel">
-		<h2>Leaderboard</h2>
-		<p class="placeholder">Top strategies will appear here after tournaments run</p>
+		<Leaderboard
+			entries={getLeaderboard()}
+			scoringMode={getScoringMode()}
+			onScoringChange={handleScoringChange}
+			onWatch={handleWatch}
+			matches={getMatches()}
+		/>
 	</section>
 </div>
 
-<section class="panel demo-panel">
-	<h2>Quick Demo</h2>
-	<p>What do you choose?</p>
-	<div class="buttons">
-		<button class="btn cooperate" onclick={cooperate}>🤝 Cooperate</button>
-		<button class="btn defect" onclick={defect}>💀 Defect</button>
-	</div>
-	<div class="scores">
-		<span>Cooperations: {cooperateCount}</span>
-		<span>Defections: {defectCount}</span>
-	</div>
-</section>
+<TournamentRunner
+	completed={getProgress().completed}
+	total={getProgress().total}
+	isRunning={getIsRunning()}
+/>
+
+{#if getSelectedMatch()}
+	<section class="panel">
+		<Visualizer match={getSelectedMatch()!} onClose={handleCloseVisualizer} />
+	</section>
+{/if}
+
+{#if getUserStrategyName() && getUserMatches().length > 0}
+	<section class="panel">
+		<Results
+			strategyName={getUserStrategyName()!}
+			matches={getUserMatches()}
+			onWatch={handleWatchMatch}
+		/>
+	</section>
+{/if}
 
 <style>
 	.grid {
@@ -49,6 +186,7 @@
 		border: 1px solid #21262d;
 		border-radius: 8px;
 		padding: 1.5rem;
+		margin-bottom: 1.5rem;
 	}
 
 	h2 {
@@ -57,50 +195,31 @@
 		color: #f0f6fc;
 	}
 
-	.placeholder {
-		color: #484f58;
-		font-style: italic;
-	}
-
-	.demo-panel {
-		text-align: center;
-	}
-
-	.buttons {
+	.share-row {
+		margin-top: 0.75rem;
 		display: flex;
-		gap: 1rem;
-		justify-content: center;
-		margin: 1rem 0;
+		justify-content: flex-end;
 	}
 
-	.btn {
-		padding: 0.75rem 1.5rem;
-		border: none;
+	.share-btn {
+		padding: 0.4rem 0.8rem;
+		background: #21262d;
+		border: 1px solid #30363d;
 		border-radius: 6px;
-		font-size: 1rem;
-		cursor: pointer;
-		font-weight: 600;
-		transition: opacity 0.15s;
-	}
-
-	.btn:hover {
-		opacity: 0.85;
-	}
-
-	.cooperate {
-		background: #238636;
-		color: white;
-	}
-
-	.defect {
-		background: #da3633;
-		color: white;
-	}
-
-	.scores {
-		display: flex;
-		gap: 2rem;
-		justify-content: center;
 		color: #8b949e;
+		font-size: 0.85rem;
+		cursor: pointer;
+		transition: all 0.15s;
+	}
+
+	.share-btn:hover {
+		color: #e1e4e8;
+		background: #30363d;
+	}
+
+	@media (max-width: 768px) {
+		.grid {
+			grid-template-columns: 1fr;
+		}
 	}
 </style>
