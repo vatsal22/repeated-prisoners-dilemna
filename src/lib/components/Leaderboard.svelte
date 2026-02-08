@@ -19,6 +19,10 @@
 				m.strategy1 === name || m.strategy2 === name
 		);
 	}
+
+	function getWeightedScore(entry: LeaderboardEntry): number {
+		return Math.round(entry.totalPoints * 0.6 + (entry.wins * 3 + entry.ties) * 100 * 0.4);
+	}
 </script>
 
 <div class="leaderboard">
@@ -36,9 +40,9 @@
 					<tr>
 						<th class="rank-col">#</th>
 						<th class="name-col">Strategy</th>
-						<th class="score-col">Score</th>
-						<th class="record-col">W/L/T</th>
-						<th class="pts-col">Points</th>
+						<th class="pts-col" class:highlight={scoringMode === 'total'}>Points</th>
+						<th class="score-col" class:highlight={scoringMode === 'weighted'}>Score</th>
+						<th class="record-col" class:highlight={scoringMode === 'winloss'}>W/L/T</th>
 						<th class="action-col"></th>
 					</tr>
 				</thead>
@@ -52,9 +56,9 @@
 									<span class="user-badge">YOU</span>
 								{/if}
 							</td>
-							<td class="score-col">{entry.score.toLocaleString()}</td>
-							<td class="record-col">{entry.wins}/{entry.losses}/{entry.ties}</td>
-							<td class="pts-col">{entry.totalPoints.toLocaleString()}</td>
+							<td class="pts-col" class:highlight={scoringMode === 'total'}>{entry.totalPoints.toLocaleString()}</td>
+							<td class="score-col" class:highlight={scoringMode === 'weighted'}>{getWeightedScore(entry).toLocaleString()}</td>
+							<td class="record-col" class:highlight={scoringMode === 'winloss'}>{entry.wins}/{entry.losses}/{entry.ties}</td>
 							<td class="action-col">
 								<button class="watch-btn" onclick={() => onWatch(entry.name)}>
 									View
@@ -116,11 +120,23 @@
 		font-size: 0.75rem;
 		text-transform: uppercase;
 		letter-spacing: 0.05em;
+		transition: all 0.15s;
+	}
+
+	th.highlight {
+		color: #58a6ff;
+		font-weight: 700;
 	}
 
 	td {
 		padding: 0.45rem 0.4rem;
 		border-bottom: 1px solid #21262d;
+		transition: all 0.15s;
+	}
+
+	td.highlight {
+		color: #58a6ff;
+		font-weight: 600;
 	}
 
 	.rank-col {
