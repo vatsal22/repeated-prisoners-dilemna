@@ -5,6 +5,7 @@
 	import TournamentRunner from '$lib/components/TournamentRunner.svelte';
 	import Results from '$lib/components/Results.svelte';
 	import Visualizer from '$lib/components/Visualizer.svelte';
+	import HowToPlay from '$lib/components/HowToPlay.svelte';
 	import { getBuiltinStrategies, compileStrategy, validateStrategy } from '$lib/strategies.js';
 	import { runTournament } from '$lib/engine.js';
 	import { loadStrategies, saveStrategies } from '$lib/persistence.js';
@@ -121,6 +122,8 @@
 		});
 	}
 </script>
+
+<HowToPlay />
 
 <div class="grid">
 	<section class="panel editor-panel">
