@@ -118,7 +118,12 @@
 								</span>
 							</td>
 							<td>
-								<button class="watch-btn" onclick={() => onWatch(m.match)}>Watch</button>
+								<button class="watch-btn" onclick={() => {
+									onWatch(m.match);
+									setTimeout(() => {
+										document.getElementById('visualizer')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+									}, 100);
+								}}>Watch</button>
 							</td>
 						</tr>
 					{/each}

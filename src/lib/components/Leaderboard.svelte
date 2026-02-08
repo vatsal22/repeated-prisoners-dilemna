@@ -52,7 +52,12 @@
 							<td class="score-col" class:highlight={scoringMode === 'weighted'}>{getWeightedScore(entry).toLocaleString()}</td>
 							<td class="record-col" class:highlight={scoringMode === 'winloss'}>{entry.wins}/{entry.losses}/{entry.ties}</td>
 							<td class="action-col">
-								<button class="watch-btn" onclick={() => onViewResults(entry.name)}>
+								<button class="watch-btn" onclick={() => {
+									onViewResults(entry.name);
+									setTimeout(() => {
+										document.getElementById('strategy-results')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+									}, 100);
+								}}>
 									View
 								</button>
 							</td>

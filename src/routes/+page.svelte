@@ -160,7 +160,7 @@
 />
 
 {#if getSelectedStrategyForResults() && getSelectedStrategyMatches().length > 0 && getSelectedStrategyForResults() !== getUserStrategyName()}
-	<section class="panel">
+	<section class="panel" id="strategy-results">
 		<div class="results-header">
 			<h2>Strategy Results</h2>
 			<button class="close-btn" onclick={() => setSelectedStrategyForResults(null)}>
@@ -176,7 +176,7 @@
 {/if}
 
 {#if getSelectedMatch()}
-	<section class="panel">
+	<section class="panel" id="visualizer">
 		<Visualizer match={getSelectedMatch()!} onClose={handleCloseVisualizer} />
 	</section>
 {/if}
