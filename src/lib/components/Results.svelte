@@ -49,7 +49,10 @@
 		const best = matchups.length > 0 ? matchups[0] : null;
 		const worst = matchups.length > 0 ? matchups[matchups.length - 1] : null;
 
-		return { totalPoints, wins, losses, ties, matchups, best, worst };
+		// Calculate weighted score: 60% total points + 40% win/loss
+		const totalScore = Math.round(totalPoints * 0.6 + (wins * 3 + ties) * 100 * 0.4);
+
+		return { totalPoints, totalScore, wins, losses, ties, matchups, best, worst };
 	});
 </script>
 
@@ -60,6 +63,10 @@
 		<div class="stat-card">
 			<div class="stat-value">{stats.totalPoints.toLocaleString()}</div>
 			<div class="stat-label">Total Points</div>
+		</div>
+		<div class="stat-card">
+			<div class="stat-value">{stats.totalScore.toLocaleString()}</div>
+			<div class="stat-label">Total Score</div>
 		</div>
 		<div class="stat-card">
 			<div class="stat-value record">

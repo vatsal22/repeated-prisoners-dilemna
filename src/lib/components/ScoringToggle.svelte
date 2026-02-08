@@ -10,7 +10,7 @@
 
 	const modes: { value: ScoringMode; label: string; tooltip: string }[] = [
 		{ value: 'total', label: 'Total Points', tooltip: 'Sum of all points scored across matches' },
-		{ value: 'weighted', label: 'Weighted', tooltip: '60% total points + 40% win/loss' },
+		{ value: 'weighted', label: 'Weighted Score', tooltip: '60% total points + 40% win/loss' },
 		{ value: 'winloss', label: 'Win/Loss', tooltip: '3 pts per win, 1 pt per tie' }
 	];
 </script>
