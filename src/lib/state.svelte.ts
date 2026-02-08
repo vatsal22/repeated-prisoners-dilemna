@@ -8,6 +8,7 @@ let isRunning = $state(false);
 let progress = $state({ completed: 0, total: 0 });
 let userStrategyName = $state<string | null>(null);
 let selectedMatch = $state<MatchResult | null>(null);
+let selectedStrategyForResults = $state<string | null>(null);
 
 const leaderboard = $derived(
 	computeLeaderboard(strategies, matches, scoringMode, userStrategyName ?? undefined)
@@ -17,6 +18,14 @@ const userMatches = $derived(
 	userStrategyName
 		? matches.filter(
 				(m) => m.strategy1 === userStrategyName || m.strategy2 === userStrategyName
+			)
+		: []
+);
+
+const selectedStrategyMatches = $derived(
+	selectedStrategyForResults
+		? matches.filter(
+				(m) => m.strategy1 === selectedStrategyForResults || m.strategy2 === selectedStrategyForResults
 			)
 		: []
 );
@@ -77,6 +86,18 @@ export function getUserMatches() {
 	return userMatches;
 }
 
+export function getSelectedStrategyForResults() {
+	return selectedStrategyForResults;
+}
+
+export function setSelectedStrategyForResults(name: string | null) {
+	selectedStrategyForResults = name;
+}
+
+export function getSelectedStrategyMatches() {
+	return selectedStrategyMatches;
+}
+
 export function addStrategy(strategy: Strategy) {
 	// Remove existing strategy with same name
 	strategies = strategies.filter((s) => s.name !== strategy.name);
@@ -101,5 +122,6 @@ export function reset() {
 	matches = [];
 	userStrategyName = null;
 	selectedMatch = null;
+	selectedStrategyForResults = null;
 	progress = { completed: 0, total: 0 };
 }

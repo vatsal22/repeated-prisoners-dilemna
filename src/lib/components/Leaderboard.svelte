@@ -6,19 +6,11 @@
 		entries: LeaderboardEntry[];
 		scoringMode: ScoringMode;
 		onScoringChange: (mode: ScoringMode) => void;
-		onWatch: (strategyName: string) => void;
+		onViewResults: (strategyName: string) => void;
 		matches: MatchResult[];
 	}
 
-	let { entries, scoringMode, onScoringChange, onWatch, matches }: Props = $props();
-
-	function findMatch(name: string): MatchResult | undefined {
-		// Find the first match involving this strategy that also involves a user strategy
-		return matches.find(
-			(m) =>
-				m.strategy1 === name || m.strategy2 === name
-		);
-	}
+	let { entries, scoringMode, onScoringChange, onViewResults, matches }: Props = $props();
 
 	function getWeightedScore(entry: LeaderboardEntry): number {
 		return Math.round(entry.totalPoints * 0.6 + (entry.wins * 3 + entry.ties) * 100 * 0.4);
@@ -60,7 +52,7 @@
 							<td class="score-col" class:highlight={scoringMode === 'weighted'}>{getWeightedScore(entry).toLocaleString()}</td>
 							<td class="record-col" class:highlight={scoringMode === 'winloss'}>{entry.wins}/{entry.losses}/{entry.ties}</td>
 							<td class="action-col">
-								<button class="watch-btn" onclick={() => onWatch(entry.name)}>
+								<button class="watch-btn" onclick={() => onViewResults(entry.name)}>
 									View
 								</button>
 							</td>

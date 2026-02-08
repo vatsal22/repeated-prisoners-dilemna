@@ -28,7 +28,10 @@
 		getUserMatches,
 		addStrategy,
 		setStrategies,
-		setMatches
+		setMatches,
+		getSelectedStrategyForResults,
+		setSelectedStrategyForResults,
+		getSelectedStrategyMatches
 	} from '$lib/state.svelte.js';
 
 	let sharedName = $state('');
@@ -94,12 +97,8 @@
 		setScoringMode(mode);
 	}
 
-	function handleWatch(strategyName: string) {
-		const matches = getMatches();
-		const match = matches.find(
-			(m) => m.strategy1 === strategyName || m.strategy2 === strategyName
-		);
-		if (match) setSelectedMatch(match);
+	function handleViewResults(strategyName: string) {
+		setSelectedStrategyForResults(strategyName);
 	}
 
 	function handleWatchMatch(match: MatchResult) {
@@ -148,7 +147,7 @@
 			entries={getLeaderboard()}
 			scoringMode={getScoringMode()}
 			onScoringChange={handleScoringChange}
-			onWatch={handleWatch}
+			onViewResults={handleViewResults}
 			matches={getMatches()}
 		/>
 	</section>
@@ -160,21 +159,28 @@
 	isRunning={getIsRunning()}
 />
 
+{#if getSelectedStrategyForResults() && getSelectedStrategyMatches().length > 0 && getSelectedStrategyForResults() !== getUserStrategyName()}
+	<section class="panel">
+		<div class="results-header">
+			<h2>Strategy Results</h2>
+			<button class="close-btn" onclick={() => setSelectedStrategyForResults(null)}>
+				Close
+			</button>
+		</div>
+		<Results
+			strategyName={getSelectedStrategyForResults()!}
+			matches={getSelectedStrategyMatches()}
+			onWatch={handleWatchMatch}
+		/>
+	</section>
+{/if}
+
 {#if getSelectedMatch()}
 	<section class="panel">
 		<Visualizer match={getSelectedMatch()!} onClose={handleCloseVisualizer} />
 	</section>
 {/if}
 
-{#if getUserStrategyName() && getUserMatches().length > 0}
-	<section class="panel">
-		<Results
-			strategyName={getUserStrategyName()!}
-			matches={getUserMatches()}
-			onWatch={handleWatchMatch}
-		/>
-	</section>
-{/if}
 
 <style>
 	.grid {
@@ -218,6 +224,29 @@
 	.share-btn:hover {
 		color: #e1e4e8;
 		background: #30363d;
+	}
+
+	.results-header {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		margin-bottom: 1rem;
+	}
+
+	.close-btn {
+		padding: 0.3rem 0.6rem;
+		background: #21262d;
+		border: 1px solid #30363d;
+		border-radius: 4px;
+		color: #8b949e;
+		font-size: 0.8rem;
+		cursor: pointer;
+		transition: all 0.15s;
+	}
+
+	.close-btn:hover {
+		background: #30363d;
+		color: #e1e4e8;
 	}
 
 	@media (max-width: 768px) {
