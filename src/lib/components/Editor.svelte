@@ -16,7 +16,7 @@
 
 	let { onSubmit, disabled = false, initialName = '', initialCode = '' }: Props = $props();
 
-	let strategyName = $state('');
+	let strategyName = $state('My Strat');
 	let selectedTemplate = $state(-1);
 	let code = $state(TEMPLATES[0].code);
 	let validation = $state<{ valid: boolean; error?: string }>({ valid: true });
