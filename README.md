@@ -2,6 +2,8 @@
 
 A competitive tournament platform for testing game theory strategies in the classic Prisoner's Dilemma. Write your own strategy in JavaScript, battle against built-in and community strategies, and climb the leaderboard.
 
+**🚀 [Try it live!](https://repeated-prisoners-dilemna.vercel.app/)**
+
 ## What is This?
 
 This is an interactive web application that lets you:
