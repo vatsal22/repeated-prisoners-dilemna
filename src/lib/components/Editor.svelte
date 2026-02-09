@@ -4,7 +4,7 @@
 	import { javascript } from '@codemirror/lang-javascript';
 	import { oneDark } from '@codemirror/theme-one-dark';
 	import { EditorState } from '@codemirror/state';
-	import { TEMPLATES } from '$lib/strategies.js';
+	import { TEMPLATES, DROPDOWN_TEMPLATES } from '$lib/strategies.js';
 	import { validateStrategy } from '$lib/strategies.js';
 
 	interface Props {
@@ -18,7 +18,7 @@
 
 	let strategyName = $state('My Strat');
 	let selectedTemplate = $state(-1);
-	let code = $state(TEMPLATES[0].code);
+	let code = $state(DROPDOWN_TEMPLATES[0].code);
 	let validation = $state<{ valid: boolean; error?: string }>({ valid: true });
 	let editorContainer: HTMLDivElement;
 	let view: EditorView | undefined;
@@ -56,14 +56,17 @@
 	});
 
 	function handleTemplateChange(e: Event) {
-		const idx = parseInt((e.target as HTMLSelectElement).value);
-		selectedTemplate = idx;
-		if (idx >= 0 && view) {
-			const template = TEMPLATES[idx];
+		const dropdownIdx = parseInt((e.target as HTMLSelectElement).value);
+		if (dropdownIdx >= 0 && view) {
+			const template = DROPDOWN_TEMPLATES[dropdownIdx];
+			// Find the index in full TEMPLATES array
+			selectedTemplate = TEMPLATES.findIndex(t => t.name === template.name);
 			code = template.code;
 			view.dispatch({
 				changes: { from: 0, to: view.state.doc.length, insert: template.code }
 			});
+		} else {
+			selectedTemplate = -1;
 		}
 	}
 
@@ -108,9 +111,9 @@
 			bind:value={strategyName}
 			{disabled}
 		/>
-		<select class="template-select" value={selectedTemplate} onchange={handleTemplateChange}>
+		<select class="template-select" value={-1} onchange={handleTemplateChange}>
 			<option value={-1}>Load template...</option>
-			{#each TEMPLATES as template, i}
+			{#each DROPDOWN_TEMPLATES as template, i}
 				<option value={i}>{template.name} — {template.description}</option>
 			{/each}
 		</select>

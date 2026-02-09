@@ -400,6 +400,18 @@ export const TEMPLATES: StrategyTemplate[] = [
 }
 ];
 
+// Subset of templates to show in the dropdown (all templates still compete as contenders)
+export const DROPDOWN_TEMPLATES: StrategyTemplate[] = [
+	TEMPLATES[0],  // Tit for Tat
+	TEMPLATES[1],  // Always Cooperate
+	TEMPLATES[2],  // Always Defect
+	TEMPLATES[3],  // Grudger
+	TEMPLATES[4],  // Tit for Two Tats
+	TEMPLATES[5],  // Random
+	TEMPLATES[7],  // Pavlov
+	TEMPLATES[8],  // Generous Tit for Tat
+];
+
 export function compileStrategy(code: string): StrategyFunction {
 	// Extract the function body from "function strategy(...) { ... }"
 	// We wrap it so `new Function` returns the strategy function
