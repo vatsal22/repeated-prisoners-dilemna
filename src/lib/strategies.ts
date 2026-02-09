@@ -223,8 +223,8 @@ export const TEMPLATES: StrategyTemplate[] = [
   const totalRounds = 500; // assumed game length
   const currentRound = history.length + 1;
   
-  // Randomness starts at 30% and decays to 0% by round 50
-  const randomness = Math.max(0, 0.3 * (1 - currentRound / 200));
+  // Randomness starts at 30% and decays to 0% by round 100
+  const randomness = Math.max(0, 0.3 * (1 - currentRound / 100));
   
   // With decreasing probability, make a random move
   if (Math.random() < randomness) {
