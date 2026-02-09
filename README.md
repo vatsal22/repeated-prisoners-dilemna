@@ -24,7 +24,6 @@ See [MVP.md](./MVP.md) for the full roadmap, including:
 ## Contributing
 
 Contributions welcome! Areas for improvement:
-- Additional built-in strategy templates
 - Enhanced visualization options
 - Performance optimizations for large tournaments
 - Mobile responsive design improvements
