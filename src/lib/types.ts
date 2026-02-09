@@ -55,4 +55,4 @@ export const PAYOFF: Record<Move, Record<Move, [number, number]>> = {
 	}
 };
 
-export const ROUNDS_PER_MATCH = 200;
+export const ROUNDS_PER_MATCH = 500;

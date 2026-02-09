@@ -10,7 +10,7 @@
 
 	let currentRound = $state(0);
 	let isPlaying = $state(false);
-	let speed = $state(5);
+	let speed = $state(10);
 	let intervalId: ReturnType<typeof setInterval> | null = null;
 
 	// Reset visualizer when match changes
